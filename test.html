@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            position: relative;
+            width: 600px;
+            height: 200px;
+            flex: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        #box1 {
+            width: 300px;
+            height: 200px;
+        }
+
+        #box2 {
+            width: 300px;
+            height: 200px;
+            background: url('./timg1.jpeg') no-repeat ;
+            background-size: 300px;
+        }
+
+        #drag {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: #ccc;
+            z-index: 1;
+            background: url('./timg1.jpeg') no-repeat ;
+            background-size: 300px;
+        }
+
+        #dragEnd {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: #fff;
+        }
+
+        #title {
+            height: 30px;
+            width: 600px;
+            line-height: 30px;
+            text-align: right;
+            font-size: 16px;
+            padding-right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <p id="title"></p>
+    <div class="container">
+        <div id="box1">
+            <div id="drag"></div>
+        </div>
+        <div id="box2">
+            <div id="dragEnd"></div>
+        </div>
+    </div>
+    <script>
+        const dragBox = document.getElementById('drag');
+        const container = document.getElementsByClassName('container')[0];
+        const dragEnd = document.getElementById('dragEnd');
+        const title = document.getElementById('title');
+        const box2 = document.getElementById('box2');
+        const bgAry = [
+            './timg1.jpeg',
+            './timg2.jpeg',
+            './timg3.jpeg',
+            './timg4.jpeg',
+            './timg5.jpeg'
+        ]
+        //初试化盒子位置--随机
+        const initX = Math.round(Math.random() * (300 - dragBox.offsetWidth));
+        const initY = Math.round(Math.random() * (200 - dragBox.offsetHeight-10));
+        dragBox.style.left ='200px';
+        dragBox.style.top = initY + 'px';
+        dragEnd.style.left = initX + 300 + 'px';
+        dragEnd.style.top = initY + 'px';
+        const bgX = initX;
+        const bgY = initY;
+        //初始化 dragBox 背景图
+        const bgNum = Math.round(Math.random()*4);
+        box2.style.backgroundImage =`url(${bgAry[bgNum]})`;
+        dragBox.style.backgroundImage =`url(${bgAry[bgNum]})`;
+        dragBox.style.backgroundPosition = `-${bgX}px -${bgY}px`;
+        console.log(getComputedStyle(dragBox).backgroundPosition);
+        //添加拖动事件
+        window.addEventListener('mousedown', function (event) {
+            const startDate = new Date().getTime();
+            const startX = event.clientX;
+            const minX = 50;
+            const maxX = container.offsetWidth - dragBox.offsetWidth;
+            const boxX = parseInt(getComputedStyle(dragBox).left);
+            const boxY = parseInt(getComputedStyle(dragBox).top);
+            var drag = function (event) {
+                var moveX = event.clientX - startX;
+                var resultX = boxX + moveX;
+                if (resultX <= minX) {
+                    resultX = minX;
+                } else if (resultX >= maxX) {
+                    resultX = maxX;
+                }
+                dragBox.style.left = resultX + 'px';
+            }
+            if (event.target == dragBox) {
+                window.addEventListener('mousemove', drag)
+
+            }
+            var end = function (event) {
+                window.removeEventListener('mousemove', drag)
+                window.removeEventListener('mouseup', end)
+                var dragX = dragBox.offsetLeft;
+                var EndX = dragEnd.offsetLeft;
+                if (Math.abs(EndX - dragX) < 8) {
+                    const endDate = new Date().getTime() - startDate;
+                    title.innerHTML = `验证成功，用时${(endDate / 1000).toFixed(2)}秒`
+                } else {
+                    dragBox.style.left = '200px';
+                }
+            }
+            window.addEventListener('mouseup', end)
+        })
+
+    </script>
+</body>
+
+</html>
